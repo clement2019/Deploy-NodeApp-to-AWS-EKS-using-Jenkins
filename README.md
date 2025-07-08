@@ -1,21 +1,6 @@
-# project Outlook and workflow
 
-- provisioing the myapp-server(jenkins) sitting on an EC2 instance created
-- Accessibility to this Ec2 instance through port 8080 defined in SG
-- the user me can only have access through SSH connection
-- The provioning was done solely using terraform (IAC)
+## Deploy Node application on Cloud using Jenkins 
 
-###  Workflow for this task using Terraform?
-- VPC creation effected to start with
-- Internet Gateway created while attaching it the VPC using a Route Table
-- Public Subnet creation and associate it with the Route Table
-- Security Group creation for firewall for the EC2 Instance
-- Jenkins installation on the EC2 Instance done with script automation
-- using an existing Key Pair to the Ec2 instance(myapp-server) created
-- Making sure all works as specified
-
-
-Deploy Netflix Clone on Cloud using Jenkins - DevSecOps Project!
 Phase 1: Initial Setup and Deployment
 Step 1: Launch EC2 (Ubuntu 22.04):
 
@@ -27,17 +12,40 @@ Update all the packages and then clone the code.
 
 Clone your application's code repository onto the EC2 instance:
 
-https://github.com/clement2019/DevSecOps-Project.git
+https://github.com/clement2019/Deploy-NodeApp-to-AWS-EKS-using-Jenkins.git
+
 Step 3: Install Docker and Run the App Using a Container:
 
 Set up Docker on the EC2 instance:
 
 
+# Inititial Set Up
 
-###  project Prerequisites
+- provisioing the myapp-server(jenkins) sitting on an EC2 instance created
+
+- Accessibility to this Ec2 instance through port 8080 defined in SG
+
+- the user me can only have access through SSH connection
+
+- The provioning was done solely using terraform (IAC)
+
+- VPC creation effected to start with
+
+- Internet Gateway created while attaching it the VPC using a Route Table
+
+- Public Subnet creation and associate it with the Route Table
+
+- Security Group creation for firewall for the EC2 Instance
+
+- Jenkins installation on the EC2 Instance done with script automation
+
+- using an existing Key Pair to the Ec2 instance(myapp-server) created
+
+- Making sure all works as specified
+
 Installation and configuration of AWS CLI
-Installation of Terraform
 
+Installation of Terraform
 
 ###  Run this to SSH into EC2
 ssh -i devops_key2.pem amazon@public_ip
@@ -52,14 +60,23 @@ cd infra
 ###  configure jenkins
 install plugin node on jenkins
 ###  go to tools and add node inside node.js
+
 now go to mamage jenkins
+
 add credentials that the pipeline will use
+
 ### add Github credentials
+
 username and password
+
 Add Id:  GITHUB_CREDENTIALS
+
 ###  add dockerhub credentials
+
 dockerhub id
+
 dockkerhub username
+
 dockerhubpassowrord as "secret test" in jenkins
 
 add the name of kuberntestes cluster to deploy the application
@@ -67,32 +84,52 @@ add the name of kuberntestes cluster to deploy the application
 ### prequisite
 
 1. first install the aws cli on my local machine
+
 ## install aws cli
+
+
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
+
 sudo apt install unzip 
+
 unzip awscliv2.zip 
+
 sudo ./aws/install
 
-####check the version
+#### check the version
 
 aws --version
-2. then create IAM user with adminAccess in AWS with  access key and secret key generated
+
+2. then create IAM user with adminAccess in AWS with  access key and 
+
+secret key generated
+
 Run aws configure
+
 Authenticate with the command below
+
 aws sts get-caller-identity
+
 aws s3 ls
 
-3. install kubectl on local machine and confirmed installation by running the command
+3. install kubectl on local machine and confirmed installation by running 
+
+the command
 ### Install Kubernetes Kubectl:
 
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
     kubectl version 
+
 kubectl version --client
 
 4. ## install eksctl
 
-curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/
+
+latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 
 sudo mv /tmp/eksctl /usr/local/bin
 
@@ -128,5 +165,66 @@ eksctl delete cluster --region=eu-west-2 --name=eks-cluster-201
 ONCE THE CLUSTER name eks-cluster-209 HAS BEEN CREATED WITH THE ABOVE CONMAND
   WE CAN THEN RUN THE JENKINS PIPELINE AND IT WILL BE REFERENCED IN TYHE PIPELINE SCRIPT
 
+
+  pipeline {
+  agent any
   
+  tools {nodejs "node"}
+  environment {
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        WS_DEFAULT_REGION = "eu-west-2"
+    }
+    
+  stages {
+    stage("GitHub git cloning") {
+            steps {
+                script {
+                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'GITHUB_CREDENTIALS', url: 'https://github.com/clement2019/Deploy-NodeApp-to-AWS-EKS-using-Jenkins.git']])
+                    //git branch: 'main', url: 'https://github.com/clement2019/Deploy-NodeAp-AWS-EKS-jenkins.git' 
+                }
+            }
+        }
+     
+    stage('intialising npm installation.......') {
+      steps {
+        sh 'npm install'
+  
+       
+      }
+    }
+  
+     stage('Docker image building......') {
+            steps {
+                script {
+                 
+                  sh 'printenv'
+                  sh 'git version'
+                  //sh 'docker build -t good777lord/node-app:""$Build_ID"".'
+                  sh 'docker build -t good777lord/node-app7.0 .'
+                }
+            }
+        }
+
+
+        stage('pushing Docker Image to DockerHub') {
+            steps {
+                script {
+                  
+                 withCredentials([string(credentialsId: 'DOCKERID', variable: 'DOCKERID')]) {
+                    sh 'docker login -u good777lord -p ${DOCKERID}'
+            }
+            //normally
+            //sh 'docker push good777lord/node-app:""$Build_ID""'
+            sh 'docker push good777lord/node-app7.0:latest'
+        }
+            }   
+        }
+         
+     
+       
+
+  }
+}
+
   
