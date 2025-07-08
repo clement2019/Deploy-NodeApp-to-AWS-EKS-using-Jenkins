@@ -1,0 +1,210 @@
+## ===========================================================================
+### WORKFLOW PROCESSESS FOR THIS PROJECT AND COMMANDS USED TO ACTUALISE THIS PRPJECT
+## ============================================================================
+
+## PLEASE MAKE SURE THE JENKINS SERVER TO CREATED IN AWS IF OF UBUTUN OPERATING SYSTEM AND NOT AMAZON LINUX DOES NOT WORK WITH NODE.JS IN JENKINS IT WILL CRASH
+===============================================================================================================
+
+1.0 Working locally on your local machine authenticate yourself in aws within the vscode with iam user
+
+    aws configure
+
+    aws sts get-caller-identity
+
+    aws s3 ls
+
+ 2.0 created all the terraform files 
+ make sure you are in your project directory created in github for this project 
+ #create a folder
+ mkdir infra
+ cd infra
+ #and create the following terrform files to provision your resources in aws(meanwhile the jenkins server must nbe of type t2.small minimum not free tier)
+
+     backend.tf
+     main.tf
+     provider.tf
+     security.tf
+     vpc.tf
+     jenkins-install-on-ubutun.sh
+     jenkins-instalation-on-amazon-linux.sh
+     outputs.sh
+     Readme.md
+     infra-command.json
+     variables.tf
+     terraformtfvars
+     .gitignore
+
+     
+
+ 3.0  Run this command to initialize the backend services
+
+      terraform init
+
+
+
+4.0  Run this comad to format all your terraform files
+
+     terraform fmt
+
+
+
+5.0  Run this command to viladate your terraform script
+
+     terraform validate
+
+
+
+6.0  Run this command to showcase all the recourses you want to create using terraform
+
+     terraform plan
+
+     
+
+7.0  Run this command to apply all you resources and create the all within aws infrastruct
+
+     terraform apply --auto-approve
+
+     
+
+ 8.0 Run this command to destroy all the rescourses created using terraform
+
+     terraform destroy 
+ ## ================================================================================ 
+ -- Once terraform has created all the resources 
+ -- check if the resources were created accordingly in aws
+--- terrform will output the the public Ip of the jenkinserver built or you you can copy manaually
+    if you cant find it
+---- Terraform already ran the  jenkins-instalation-on-ubuntun.sh script where it created some files needed on that jebnkins server
+
+--- Take the public Ip to your browser public_IP:8080
+--- Now configure jenkins as usual with all your details
+---Go to manage jenkins and click on plugins and download node.js from available plugins
+---go back to manage jenkins and click on tools, look for node.js installed software and eneter node
+save
+-- Go back to mamanege jenkins and click on credentials
+click on global
+click on Add credentials
+Now beacuse you will be pulling your socuce codes from github you will need jenkins to inegrate into GIthub
+particularly if your source codes is in private , you may ignore this if ur sorce code is in public
+----Now from the dropdown select username and password and add your github credentails(username and password in the appropriate place) and safe or creaTE
+
+--- Now beacuse you will pushing your dockerhub image into Deockerhub repository you will need to jenkins to inetgrate into Dockerhub
+---Now from the drop down again select secret text and add your Dockerhub Credentails
+your dockerhub password inside as secret and an dockerhubID in the ID section this must be referenced in your pipeline script
+
+--- Now because you will be integrating into aws you need to add your secrete key and access key generated already for the IMAm user you used to athenticate
+---Now select the from the drop down again secret test
+add your secret_key_ID as secret
+access_key_ID  as secret
+----The above two items (secret_key_ID and access_key_ID) and aws_Region must be referenced in your environme variables globally in your priprline script
+
+## ======================================================================================
+Now since you are still inside the folder infra now go back to your prpject root directory by running this command below
+$ cd ..
+
+--Now inside your main project folder where you have your application files, jenkinsfile pipeline created for the project,
+---You jenkinsfile shoud have all the neccessary stages and steps with scrpt to run at every stage
+ and details of what you want to do as shown in the jenkis file pipeline drawn for this propject
+ stage for git checkout
+ stage for npm installation
+ stage for docker build image
+ stage for push docker image into dockerhub
+ stage for deployment into kubernetes
+
+your kubernetes deployment.yaml files targeting the dockerhimage name (exactly)pushed to dockerhub 
+with the the exact docker image name and tag latest
+Now run git commands and push all your files into github 
+
+## ======================================================
+NOW INSTALLATION OF CLOUD MANAGED KUBERNETES (aws eks) ON YOUR JENKINS SERVER IN AWS
+## =====================================================================
+
+Now go back to aws management console look for the jenkins server already provisioned by terraform earlier
+ssh connection to into it and view the server in another terminal in vscode
+once you there run the folowing command to be sure the script jenkins-instalation-on-ubuntun.sh ran earlier during the jenkins server installtions actually installed these softwares
+Run the command below and if any is not there pls sun individual scrpt again 
+
+$ aws --version
+$ terraform --version
+$ git --version
+$ docker --version
+$jenkins --version
+$ kubectl version --client
+$ eksctl version
+
+---Now if the jenkis server has aws cli installed run the following command below 
+aws configure
+enter access_key:
+enter secret_key:
+enter region:
+enter formart: json
+
+# Now to athneticate with aws run the follwing command below
+
+aws sts get-caller-identity
+
+aws s3 ls
+
+---Because you bulding docker image in your pipeline be sure that docker was installed on this machine
+
+------ Now before installing aws-eks kubernetes on this machine first run the following command
+$ kubectl get pods
+$ kubectl get nodes
+$ kubectl get namespace
+
+----Now if we have eksctl is ruuning on this machine now lest install aws eks
+by running this command below
+
+## Create EKS cluster
+eksctl create cluster --name <your cluster-name> --node-type t2.large --nodes 1 --nodes-min 1 --nodes-max 2 --region <yourreion-name>
+
+
+# The above will take 15 or 20 mins to install once done run the command below
+
+## Get cluster now
+eksctl get cluster 
+
+## Get EKS Cluster service
+eksctl get cluster --name <your cluster-name>  --region <yourreion-name>
+
+## Get EKS Pod data.
+$kubectl get pods --all-namespaces
+$ kubectl get pods
+$ kubectl get nodes
+
+## ==============================================================================
+NOW WE ARE READY FOR DEPLOYMENT INTO KUBERNETES
+## ================================================================================
+---Now go to jenkins Dashboard and create New Item name it anything you want  e.g new-pipeline and create
+---click on Github project
+---- enter your github clone project directory
+select scm from the drop down 
+and enter your github clone project directory again
+-----select Git
+---add credentials to create them if you have not before
+----check if your github project directory is in main or master branch and add accordingly in jenkins
+----select jenkinfile
+----Now click apply
+----jenkins will run all jenkinsfile script and deply into kubernetes
+--Now click on build now
+---if there are any errors check the console output to trace issues and fix
+
+#===============================================================
+
+IF THE ABOVE IS SUCESS NOW GO BACK TO YOUR JENKISN SERVER IN AWS
+==========================================================
+--- Now run ssh connection again to the jenkins server in aws connect to it and run the following commands below
+
+## Get EKS Pod data.
+
+$ kubectl get nodes
+$kubectl get pods --all-namespaces
+$ kubectl get pods
+## to see if there were any issueson the status of the pod run the command below
+$ kubectl get events
+$ kubectl describe pod <podname>
+$ kubectl get svc
+$ kubectl get svc <svc-name>
+ select the dns name generated from the loudbalancer used and take to your browswer to see your application
+
+
