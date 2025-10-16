@@ -26,7 +26,8 @@ pipeline {
      
     stage('intialising npm installation.......') {
       steps {
-        sh 'npm install'
+        sh 'npm init -y'
+        sh 'npm install express --save'
   
        
       }
