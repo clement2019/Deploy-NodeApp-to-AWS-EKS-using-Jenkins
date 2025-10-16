@@ -11,6 +11,17 @@ const app = express();
 app.get('/', (req, res) => {
   res.send('welcome to my world of cloud computing with different opportunities ');
 });
+app.get('/welcome', function (req, res) {
+  res.send('{ "response": "Welcome to my ayeni clement website" }');
+});
+
+app.get('/next', function (req, res) {
+  res.send('{ "response": "yes this is the next page,please register your account"}');
+});
+app.get('/ok', function (req, res) {
+  res.send('{ "response": " Nice Job!, cool job and welldone!" }');
+});
 
 app.listen(PORT, HOST);
 console.log(`Running on http://${HOST}:${PORT}`);
+module.exports = app;
