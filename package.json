@@ -1,22 +1,23 @@
 {
-  "name": "deploy-nodeapp-to-aws-eks-using-jenkins-pipeline",
+  "name": "deploy-nodeapp-to-aws-eks-using-jenkins",
   "version": "1.0.0",
-  "description": "nodejs application to be deployed into kuberntes\"",
+  "description": "Phase 1: Initial Setup and Deployment Step 1: Launch EC2 (Ubuntu 22.04):",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/devopshint/Deploy-NodeApp-to-AWS-EKS-using-Jenkins-Pipeline.git"
+    "url": "git+https://github.com/clement2019/Deploy-NodeApp-to-AWS-EKS-using-Jenkins.git"
   },
-  "author": "\"ayeni clement\"",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/devopshint/Deploy-NodeApp-to-AWS-EKS-using-Jenkins-Pipeline/issues"
+    "url": "https://github.com/clement2019/Deploy-NodeApp-to-AWS-EKS-using-Jenkins/issues"
   },
-  "homepage": "https://github.com/devopshint/Deploy-NodeApp-to-AWS-EKS-using-Jenkins-Pipeline#readme",
+  "homepage": "https://github.com/clement2019/Deploy-NodeApp-to-AWS-EKS-using-Jenkins#readme",
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^5.1.0"
   }
 }
