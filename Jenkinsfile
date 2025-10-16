@@ -24,15 +24,7 @@ pipeline {
             }
         }
      
-    stage('intialising npm installation.......') {
-      steps {
-        sh 'npm init -y'
-        sh 'npm install express --save'
-  
-       
-      }
-    }
-  
+    
     stage('Docker image building......') {
       steps {
         script {
