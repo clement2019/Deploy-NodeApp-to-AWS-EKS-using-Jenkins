@@ -1,15 +1,3 @@
-Conversation opened. 1 unread message.
-
-Skip to content
-Using Gmail with screen readers
-1 of 6,401
-Jenkins file
-Inbox
-
-Felix Osagie
-4:29 PM (0 minutes ago)
-to me
-
 pipeline{
     agent any
     stages{
